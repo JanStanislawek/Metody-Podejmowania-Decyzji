@@ -1,0 +1,73 @@
+package com.company;
+
+public class Main {
+
+    static double[] grad = new double[3];
+    static double[] sn = new double[3];
+
+    public static double funkcja(double[] x) {
+        return Math.pow(x[0], 3) * Math.sin(x[1]) + 4 * x[2];
+    }
+
+    public static double funkcjakroku(double k) {
+        return Math.pow(sn[0] + k * grad[0], 3) * Math.sin(sn[1] + k * grad[1]) + 4 * (sn[2] + k * grad[2]);
+    }
+
+    public static double zlotyPodzial() {
+        double a = -10;
+        double b = 10;
+        double e = 0.02;
+
+        double k = (Math.sqrt(5) - 1) / 2;
+        double xL = b - k * (b - a);
+        double xR = a + k * (b - a);
+
+        while ((b - a) > e) {
+            if (funkcjakroku(xL) < funkcjakroku(xR)) {
+                b = xR;
+                xR = xL;
+                xL = b - k * (b - a);
+            } else {
+                a = xL;
+                xL = xR;
+                xR = a + k * (b - a);
+            }
+        }
+        double min = ((a + b) / 2);
+        return min;
+    }
+
+    public static void main(String[] args) {
+        double e = 0.02;
+
+        double[] s = new double[3];
+        for (int i = 0; i < 3; i++) {
+            s[i] = 1;
+            sn[i] = s[i];
+        }
+
+        double[] g = new double[3];
+        g[0] = 3 * s[0] * s[0] * Math.sin(s[1]);
+        g[1] = Math.pow(s[0], 3) * Math.cos(s[1]);
+        g[2] = 4;
+
+        for (int i = 0; i < 3; i++)
+            grad[i] = -1 * g[i];
+
+        double krok;
+        while (true) {
+            krok = zlotyPodzial();
+            if ((funkcja(s) != funkcja(sn) && ((Math.abs(sn[0] - s[0]) < e && Math.abs(sn[1] - s[1]) < e && Math.abs(sn[2] - s[2]) < e) || Math.abs(funkcja(sn) - funkcja(s)) < e))) {
+                System.out.println("Wynik = " + funkcja(sn));
+                System.out.println("\nx1 = " + sn[0] + "\nx2 = " + sn[1] + "\nx3 = " + sn[2]);
+                break;
+            }
+            System.arraycopy(sn, 0, s, 0, 3);
+
+            for (int i = 0; i < 3; i++) {
+                grad[i] = -1 * g[i];
+                sn[i] = s[i] + krok * grad[i];
+            }
+        }
+    }
+}

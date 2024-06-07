@@ -1,0 +1,33 @@
+package com.company;
+
+import java.util.Random;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Random random = new Random();
+        int n = 100;
+        double wynik;
+        double funkcja, a, b, c, a_min = 0, b_min = 0, c_min = 0;
+
+        a = random.nextDouble(1000 - (-1000)) + (-1000);
+        b = random.nextDouble(1000 - (-1000)) + (-1000);
+        c = random.nextDouble(1000 - (-1000)) + (-1000);
+        funkcja = 3 * a + b + c / 2 + 4;
+        wynik = funkcja;
+
+        for (int i = 1; i < n; i++) {
+            a = random.nextDouble(1000 - (-1000)) + (-1000);
+            b = random.nextDouble(1000 - (-1000)) + (-1000);
+            c = random.nextDouble(1000 - (-1000)) + (-1000);
+            funkcja = ((3 * a) + b + (c / 2)) + 4;
+            if (wynik > funkcja) {
+                wynik = funkcja;
+                a_min = a;
+                b_min = b;
+                c_min = c;
+            }
+        }
+        System.out.println(a_min + " " + b_min + " " + c_min + " \n" + wynik);
+    }
+}

@@ -1,0 +1,138 @@
+package com.company;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.stream.IntStream;
+
+public class Main {
+    static HashMap<Integer, double[]> tabPopulacja = new HashMap<>(100);
+    static HashMap<Integer, double[]> tabRodzice = new HashMap<>(100);
+    static double[] ocena = new double[100];
+    static double[] silnaMaupa = new double[4];
+    static double[] nowaSilnaMaupa = new double[4];
+
+    static double c = 0.4;
+    static double m = 0.02;
+
+    public static double funkcja(double[] x) {
+        return ((Math.sin(x[0]) * Math.cos(x[1])) / (Math.pow(x[2], 2) * Math.pow(x[3], 2) + 1)) * (-1);
+    }
+
+    public static double[] randomGenerator() {
+        double[] temp = new double[4];
+        for (int j = 0; j < 4; j++) {
+            temp[j] = (Math.random() * ((100 - (-100)) + 1)) + (-100);
+        }
+        return temp;
+    }
+
+    public static int znajdzIndex(double[] tab) {
+        double najsilniejszy = tab[0];
+        for (double v : tab) {
+            if (najsilniejszy < v) {
+                najsilniejszy = v;
+            }
+        }
+
+        for (int i = 0; i < tab.length; i++) {
+            if (tab[i] == najsilniejszy) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int eliminacje() {
+        Random random = new Random();
+        return random.nextInt(100);
+    }
+
+    public static double losowanie(){
+        Random random = new Random();
+        return random.nextDouble(1);
+    }
+
+    public static int turniej() {
+        int wojownikMaupIndex1 = eliminacje();
+        int wojownikMaupIndex2 = eliminacje();
+        int wojownikMaupIndex3 = eliminacje();
+        if (ocena[wojownikMaupIndex1] >= ocena[wojownikMaupIndex2] && ocena[wojownikMaupIndex1] >= ocena[wojownikMaupIndex3]) {
+            return wojownikMaupIndex1;
+        }
+        if (ocena[wojownikMaupIndex2] >= ocena[wojownikMaupIndex1] && ocena[wojownikMaupIndex2] >= ocena[wojownikMaupIndex3]) {
+            return wojownikMaupIndex2;
+        }
+        if (ocena[wojownikMaupIndex3] >= ocena[wojownikMaupIndex2] && ocena[wojownikMaupIndex3] >= ocena[wojownikMaupIndex1]) {
+            return wojownikMaupIndex3;
+        }
+        return -1;
+    }
+
+    public static void krzyzowanie(int x, int y){
+        double[] temp1 = {tabRodzice.get(x)[0],tabRodzice.get(x)[1], tabRodzice.get(y)[2],tabRodzice.get(y)[3]};
+        double[] temp2 = {tabRodzice.get(y)[0],tabRodzice.get(y)[1], tabRodzice.get(x)[2],tabRodzice.get(x)[3]};
+        tabRodzice.remove(x);
+        tabRodzice.remove(y);
+        tabRodzice.put(x, temp1);
+        tabRodzice.put(y, temp2);
+    }
+
+    public static void mutowanie(int i){
+        for (int j = 0; j < tabPopulacja.get(i).length; j++) {
+            tabPopulacja.get(i)[j] = tabPopulacja.get(i)[j] + (Math.random() * (m - (-m)) + (-m));
+        }
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < 100; i++) {
+            tabPopulacja.put(i, randomGenerator());
+        }
+
+        for (int i = 0; i < 100; i++) {
+            ocena[i] = funkcja(tabPopulacja.get(i));
+            System.out.println(Arrays.toString(tabPopulacja.get(i)) + " " + "ocena wynosi: " + ocena[i]);
+        }
+
+        silnaMaupa = tabPopulacja.get(znajdzIndex(ocena));
+        if (funkcja(silnaMaupa) <= 1.2 && funkcja(silnaMaupa) >= 0.8) {
+            return;
+        }
+
+        System.out.println(Arrays.toString(silnaMaupa) + " " + znajdzIndex(ocena));
+        System.out.println();
+
+        for (int k = 0; k < 1000; k++) {
+            for (int i = 0; i < 100; i++) {
+                tabRodzice.put(i, tabPopulacja.get(turniej()));
+            }
+
+            for (int i = 0; i < 100; i += 2) {
+                if (losowanie() <= c) {
+                    krzyzowanie(i, i+1);
+                }
+            }
+            for (int i = 0; i < 100; i++) {
+                if (losowanie() <= m) {
+                    mutowanie(i);
+                }
+                ocena[i] = funkcja(tabRodzice.get(i));
+            }
+            tabPopulacja.putAll(tabRodzice);
+            nowaSilnaMaupa = tabPopulacja.get(znajdzIndex(ocena));
+
+            int klucz = IntStream.range(0, 100).filter(i -> tabPopulacja.get(i) == nowaSilnaMaupa).findFirst().orElse(-1);
+
+            if (funkcja(silnaMaupa) > funkcja(nowaSilnaMaupa)) {
+                tabPopulacja.put(klucz, silnaMaupa);
+            }
+
+            silnaMaupa = tabPopulacja.get(znajdzIndex(ocena));
+            if (funkcja(silnaMaupa) <= 1.2 && funkcja(silnaMaupa) >= 0.8) {
+                break;
+            }
+        }
+        System.out.println("Optymalne punkty: " + Arrays.toString(silnaMaupa));
+        System.out.println("Wartość funkcji wynosi: " + funkcja(silnaMaupa));
+    }
+}

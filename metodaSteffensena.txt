@@ -1,0 +1,70 @@
+package com.company;
+
+import java.util.Arrays;
+
+public class Main {
+
+    public static double wielomian(double x, double y, double z) {
+        return (Math.pow(x, 4) / 2) + Math.pow(y, 2) * z + Math.pow(z, 3);
+    }
+
+    public static double pochodnaX(double x, double y, double z) {
+        return 2 * Math.pow(x, 3);
+    }
+
+    public static double pochodnaY(double x, double y, double z) {
+        return 2 * y * z;
+    }
+
+    public static double pochodnaZ(double x, double y, double z) {
+        return 4 * Math.pow(z, 3) + Math.pow(y, 2);
+    }
+
+    static double[] gradient = new double[3];
+    static double[] zmienene = new double[3];
+    static double[] zmiennetemp = new double[3];
+
+    static double lambdaTemp = 1;
+    static double e = 0.02;
+    static double lambda = 1;
+
+    public static double pochodnaXKD(double k) {
+        return 4 * gradient[2] * Math.pow((gradient[2] * k + zmiennetemp[2]), 3) + gradient[2] * Math.pow((gradient[1] * k + zmiennetemp[1]), 2) + 2 * gradient[0] * Math.pow((gradient[0] * k + zmiennetemp[0]), 3) + 2 * gradient[1] * (gradient[1] * k + zmiennetemp[1]) * (gradient[2] * k + zmiennetemp[2]);
+    }
+
+    public static double krok() {
+        for (int i = 0; i < 1000; i++) {
+            lambdaTemp = lambda - (Math.abs(Math.pow(pochodnaXKD(lambda), 2))) / (pochodnaXKD(lambda + pochodnaXKD(lambda)) - pochodnaXKD(lambda));
+            if (Math.abs(lambdaTemp - lambda) < e) {
+                break;
+            }
+            lambda = lambdaTemp;
+        }
+        return lambdaTemp;
+    }
+
+    public static double euklides() {
+        return Math.sqrt(Math.pow(zmiennetemp[0] - zmienene[0], 2) + Math.pow(zmiennetemp[1] - zmienene[1], 2) + Math.pow(zmiennetemp[2] - zmienene[2], 2));
+    }
+
+    public static void main(String[] args) {
+        Arrays.fill(zmienene, 1);
+        Arrays.fill(zmiennetemp, 1);
+
+        for (int i = 0; i < 1000; i++) {
+            gradient[0] = pochodnaX(zmiennetemp[0], zmiennetemp[1], zmiennetemp[2]);
+            gradient[1] = pochodnaY(zmiennetemp[0], zmiennetemp[1], zmiennetemp[2]);
+            gradient[2] = pochodnaZ(zmiennetemp[0], zmiennetemp[1], zmiennetemp[2]);
+            lambda = krok();
+
+            for (int j = 0; j < zmiennetemp.length; j++) {
+                zmiennetemp[j] += lambda * gradient[j];
+            }
+            if (euklides() < e) {
+                break;
+            }
+            System.arraycopy(zmiennetemp, 0, zmienene, 0, zmienene.length);
+        }
+        System.out.println(Arrays.toString(zmiennetemp));
+    }
+}

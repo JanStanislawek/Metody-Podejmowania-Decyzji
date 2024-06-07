@@ -1,0 +1,53 @@
+package com.company;
+
+import java.util.Arrays;
+
+public class Main {
+    public static double wielomian(double x, double y, double z, double v, double w) {
+        return (Math.pow(x, 2) * (y + 2 - z)) / (v * (w * (-5)));
+    }
+
+    public static void main(String[] args) {
+        double[] tab = new double[5];
+        double[] tabTemp = new double[5];
+        Arrays.fill(tabTemp, 1);
+        Arrays.fill(tab, 1);
+
+        double func1, func2, temp;
+        double krok = 0.5;
+        int counter;
+
+        do {
+            System.arraycopy(tabTemp, 0, tab, 0, tab.length);
+            counter = 0;
+            for (int i = 0; i < tabTemp.length; i++) {
+                temp = tabTemp[i];
+                func1 = wielomian(tabTemp[0], tabTemp[1], tabTemp[2], tabTemp[3], tabTemp[4]);
+                tabTemp[i] = tabTemp[i] + krok;
+                func2 = wielomian(tabTemp[0], tabTemp[1], tabTemp[2], tabTemp[3], tabTemp[4]);
+                if (!(func2 < func1)) {
+                    tabTemp[i] = temp;
+                }
+            }
+
+            for (int i = 0; i < tabTemp.length; i++) {
+                temp = tabTemp[i];
+                func1 = wielomian(tabTemp[0], tabTemp[1], tabTemp[2], tabTemp[3], tabTemp[4]);
+                tabTemp[i] = tabTemp[i] - krok;
+                func2 = wielomian(tabTemp[0], tabTemp[1], tabTemp[2], tabTemp[3], tabTemp[4]);
+                if (!(func2 < func1)) {
+                    tabTemp[i] = temp;
+                }
+            }
+            for (int i = 0; i < tab.length; i++) {
+                if (tab[i] == tabTemp[i]) {
+                    counter++;
+                }
+            }
+
+        } while (counter != tabTemp.length);
+
+        System.out.println("Optymalne wartości dla najmniejszej funkcji: ");
+        Arrays.stream(tabTemp).forEach(System.out::println);
+    }
+}
